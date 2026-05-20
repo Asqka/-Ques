@@ -1,10 +1,406 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>$Title$</title>
+  <title>Java Quiz Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: radial-gradient(circle at 80% 20%, #e9f5fa 0%, #bae6fd 60%, #90caf9 100%);
+      overflow-x: hidden;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-attachment: fixed;
+    }
+    .container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      width: 100vw;
+      background: transparent;
+    }
+    .card {
+      background: rgba(255,255,255,0.97);
+      border-radius: 22px;
+      box-shadow: 0 8px 32px rgba(70, 170, 255,.14), 0 2px 8px rgba(90, 115, 190, .10);
+      padding: 2.5em 2em 2em 2em;
+      width: 98vw;
+      max-width: 540px;
+      min-width: 280px;
+      margin: 1.3em 1em 0 1em;
+      position: relative;
+      transition: box-shadow .25s;
+      animation: fadeIn 0.8s cubic-bezier(.77,.22,.42,.98);
+      z-index: 10;
+    }
+    @keyframes fadeIn { from{ opacity:0; transform:translateY(50px);} to{opacity:1;} }
+    .logo {
+      font-size: 2em;
+      font-weight: bold;
+      color: #218be6;
+      letter-spacing: 1px;
+      margin-bottom: 1.3em;
+      text-shadow: 0 2px 0 #e3f3ff;
+    }
+    #questNum {
+      color: #5c92ba;
+      font-size: .99em;
+      margin-bottom: .5em;
+      letter-spacing: 1.5px;
+      text-align:right;
+      float:right;
+    }
+    #q {
+      font-size: 1.22em;
+      font-weight: 700;
+      min-height: 1.8em;
+      margin-bottom: 2.1em;
+      color: #256494;
+      text-shadow: 0 1px 2px #eaf6fe;
+      letter-spacing:.02em;
+      margin-right:1em;
+    }
+    #a {
+      width: 99%;
+      font-size: 1.06em;
+      padding: 1em;
+      margin-bottom: 1.1em;
+      border-radius: 12px;
+      border: 1.7px solid #aad1ee;
+      box-sizing: border-box;
+      background: #f5faff;
+      outline: none;
+      transition: border .18s;
+    }
+    #a:focus {
+      border: 2.5px solid #4eb3e9;
+      background: #eef7ff;
+    }
+    button {
+      background: linear-gradient(94deg, #4eb3e9 40%, #6fffe9 120%);
+      color: #213f60;
+      border: 0;
+      border-radius: 12px;
+      padding: .88em 2.1em;
+      font-size: 1.11em;
+      font-weight: 500;
+      margin-top: .1em;
+      margin-bottom: 1.1em;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(33,139,230,.12);
+      letter-spacing: .01em;
+      transition: background .15s, transform .09s, box-shadow .15s;
+    }
+    button:active {
+      background: linear-gradient(92deg, #51e5e7 13%, #26c6da 87%);
+      box-shadow: 0 2px 3px rgba(40,40,60,.1);
+      transform: scale(.98);
+    }
+    #nextBtn {
+      float: right;
+      background: linear-gradient(102deg, #ffe44d 0%, #ffa751 100%);
+      color: #985800;
+      margin-top: .7em;
+      margin-left: .4em;
+      box-shadow:0 2px 10px rgba(230,180,51,.10);
+    }
+    #feedback {
+      min-height: 2em;
+      padding: .5em 0 0 .12em;
+      font-size: 1.09em;
+      font-weight: 500;
+      margin-bottom: .5em;
+      letter-spacing:.02em;
+      transition: color .18s;
+      opacity: 1;
+    }
+    .score {
+      font-size: 1.02em;
+      color: #2a89b4;
+      padding-top: 1.2em;
+      text-align:center;
+    }
+    .bar {
+      width: 88%;
+      height: 13px;
+      border-radius: 9px;
+      background: #e7f1fe;
+      box-shadow: 0 1px 6px rgba(45,183,255,.07);
+      overflow: hidden;
+      margin: 20px auto 34px auto;
+    }
+    .bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #5ee6a8 0%, #48c6ef 80%);
+      width: 0;
+      border-radius: 7px;
+      transition: width .5s cubic-bezier(.7,.11,.66,.95);
+      box-shadow: 0 1.5px 6px rgba(90,215,180,.13);
+    }
+    .footer {
+      margin: 18px auto 0 auto;
+      text-align:center;
+      color:#86b3c5;
+      font-size:.99em;
+    }
+
+    @media (max-width: 600px){
+      .card { padding: 1.1em .3em .8em .8em; }
+      .bar { width: 99%; }
+    }
+  </style>
 </head>
 <body>
-$END$
-</body>
-</html>
+<div class="container">
+  <div class="logo">💡 Java Tester</div>
+  <div class="bar"><div class="bar-inner" id="barf"></div></div>
+  <div class="card">
+    <div id="questNum"></div>
+    <div id="q"></div>
+    <input type="text" id="a" autocomplete="off" placeholder="Введите ответ...">
+    <button onclick="check()">Ответить</button>
+    <div id="feedback"></div>
+    <button onclick="next()" id="nextBtn" style="display: none;">Следующий вопрос</button>
+    <div class="score" id="score"></div>
+  </div>
+  <div class="footer">© Java Quiz by <b>Asqka</b> | <span style="font-size:1.13em;color:#67c4ff;">☀</span></div>
+</div>
+<script>
+  // Большой массив qa из прошлого сообщения: просто скопируй твой массив сюда!
+  const qa = [
+    { q: "Назови 4 принципа ООП.", a: "Инкапсуляция, наследование, полиморфизм, абстракция." },
+    { q: "Чем отличается ООП от функционального программирования?", a: "ООП основано на объектах и их взаимодействии, ФП — на функциях, неизменяемости и отсутствии побочных эффектов." },
+    { q: "Что такое паттерн проектирования и их классификация?", a: "Паттерн — типовое решение задачи проектирования. Классы: порождающие, структурные, поведенческие." },
+    { q: "Перечисли основные паттерны проектирования.", a: "Singleton, Factory, Builder, Adapter, Observer, Strategy, Decorator, Proxy, Command." },
+    { q: "Главные интерфейсы коллекций и чем они отличаются?", a: "List (упорядоченный, допускает дубликаты), Set (нет дубликатов), Map (пары ключ-значение)." },
+    { q: "Как работает ArrayList?", a: "Динамический массив, быстрый доступ по индексу, медленно удаляет/вставляет в середину." },
+    { q: "Как работает LinkedList?", a: "Двусвязный список, быстрая вставка/удаление в любом месте, медленный доступ по индексу." },
+    { q: "Чем отличаются ArrayList и LinkedList?", a: "ArrayList быстрее по индексу, LinkedList быстрее при частых вставках/удалениях по середине." },
+    { q: "Как работает HashMap?", a: "Хранит пары ключ-значение, быстрый доступ по ключу через хеш-функцию, допускает null." },
+    { q: "В чем отличие TreeMap и HashTable?", a: "TreeMap сортирует ключи, HashTable синхронизирован, не допускает null." },
+    { q: "Как работает HashSet и TreeSet?", a: "HashSet хранит уникальные элементы на базе HashMap, TreeSet — уникальные элементы в отсортированном виде на базе TreeMap." },
+    { q: "Сложность операций вставки/удаления/сортировки для коллекций?", a: "ArrayList: доступ O(1), вставка/удаление O(n). LinkedList: доступ O(n), вставка/удаление O(1). HashMap/HashSet: поиск, вставка, удаление O(1) в среднем." },
+    { q: "Когда лучше использовать определённую коллекцию?", a: "ArrayList — быстрый доступ по индексу. LinkedList — частые вставки/удаления. HashSet — уникальные значения, HashMap — пары ключ-значение." },
+    { q: "Чем отличаются mutable и immutable переменные, особенности String?", a: "Mutable — можно изменять (например, StringBuilder), immutable — нельзя (String). String — неизменяемый, хранится в String Pool." },
+    { q: "Что такое StringBuilder и StringBuffer?", a: "Классы для изменяемых строк. StringBuilder не синхронизирован (быстрее), StringBuffer синхронизирован (медленнее, потокобезопаснее)." },
+    { q: "Какие бывают типы ссылок в Java?", a: "StrongReference, SoftReference, WeakReference, PhantomReference." },
+    { q: "Основные методы Object и их назначение?", a: "toString — строковое представление, equals — сравнение, hashCode — хеш-код, clone — копирование, finalize — финализация, wait/notify/notifyAll — синхронизация." },
+    { q: "Что такое equals и hashCode и зачем их переопределять?", a: "Они нужны для правильного сравнения и хранения объектов в коллекциях типа HashMap. Если сравниваем через equals, hashCode должен совпадать." },
+    { q: "Что такое ClassLoader? Какие бывают?", a: "ClassLoader — загрузчики классов, бывают Bootstrap, Extension, System. Отвечают за загрузку классов в JVM." },
+    { q: "Базовые команды Git.", a: "init, pull, push, commit, stash, apply." },
+    { q: "Что такое git-flow?", a: "Модель ветвления для организации работы с git: master, develop, feature, release, hotfix." },
+    { q: "Как работают rebase, merge, reset, revert?", a: "rebase — переписывает историю, merge — объединяет ветки, reset — откат изменений, revert — создаёт новый коммит-откат." },
+    { q: "Что такое Map.Entry? Какие в нем поля и для чего?", a: "Внутренний класс Map для хранения пар ключ-значение, поля key и value." },
+    { q: "Что такое коллизия в HashMap?", a: "Коллизия — когда два ключа дают одинаковый хеш, значения хранятся в одной корзине (лежат в списке или дереве)." },
+    { q: "Что такое Concurrent Collections?", a: "Потокобезопасные коллекции: ConcurrentHashMap, CopyOnWriteArrayList и др." },
+    { q: "Как проходит флоу исключения в Java?", a: "Создаётся, 'выбрасывается', передаётся вверх по стеку, ловится catch или прерывает поток, выводится в лог." },
+    { q: "Что такое ключевое слово var?", a: "var — локальная автоматическая типизация в Java с версии 10." },
+    { q: "Что такое дефолтные и статические методы в интерфейсах Java?", a: "Дефолтные — методы с реализацией, статические — можно вызывать без экземпляра интерфейса." },
+    { q: "Что такое функциональный интерфейс и аннотация @FunctionalInterface?", a: "Функциональный интерфейс — содержит один абстрактный метод. Аннотация @FunctionalInterface для указания этого." },
+    { q: "Основные функциональные интерфейсы в Java 8?", a: "Predicate, Consumer, Supplier, Function, UnaryOperator, BinaryOperator." },
+    { q: "Отличие функционального интерфейса от абстрактного класса?", a: "Функциональный интерфейс — только один абстрактный метод, абстрактный класс — может быть несколько абстрактных и обычных методов." },
+    { q: "Что такое Optional, отличие Optional.of и Optional.ofNullable, orElse и orElseGet?", a: "Optional — контейнер для значений с возможным null. of — не допускает null, ofNullable — допускает. orElse — возвращает значение или замену, orElseGet — принимает Supplier." },
+    { q: "Основные изменения/фичи в Java 8-21?", a: "Lambda, Streams, Optional, Date/Time API, records, pattern matching, sealed classes, локальные переменные с var, улучшения switch и др." },
+    { q: "Основные изменения в String, java.lang, java.io?", a: "String стала компакнее, появились методы repeat, strip, Files.readString, новые классы в java.nio и java.lang." },
+    { q: "Что такое лямбда-выражение?", a: "Краткая форма записи анонимных функций, обычно для передачи поведения как параметра." },
+    { q: "Что такое Stream API, типы операций, map, flatMap, reduce, stateless, stateful операции?", a: "Stream — последовательная обработка коллекций. map — преобразование, flatMap — раскрытие вложенных коллекций, reduce — агрегация, stateless — не зависит от порядка, stateful — зависит (например, distinct, sorted)." },
+    { q: "Что такое Thread, Runnable, Callable и в чем отличия?", a: "Thread — поток исполнения, Runnable — задача без результата, Callable — задача с результатом и исключениями." },
+    { q: "Что такое мьютекс, монитор? Как создать поток?", a: "Мьютекс/монитор — механизм синхронизации потоков для доступа к общим ресурсам. Поток создается через new Thread(new Runnable() {...}).start();" },
+    { q: "Какие методы многопоточности есть у Object?", a: "wait, notify, notifyAll — для синхронизации." },
+    { q: "Что такое deadlock?", a: "Состояние, когда два или более потоков вечно ждут друг друга, заблокировав ресурсы." },
+    { q: "Что такое volatile, static, synchronized?", a: "volatile — переменная всегда актуальна между потоками. static — относится к классу, а не экземпляру. synchronized — способ синхронизации доступа к ресурсам." },
+    { q: "Что такое CyclicBarrier, CountDownLatch, ThreadLocal, FutureTask, livelock, ReentrantLock, ForkJoin, проблемы синглтона?", a: "CyclicBarrier — барьер для потоков, CountDownLatch — счетчик, ThreadLocal — локальная переменная потока, FutureTask — задание с результатом, livelock — потоки мешают друг другу, ReentrantLock — улучшенный synchronized, ForkJoin — параллелизм, проблемы синглтона — ленивая инициализация, потокобезопасность." },
+    { q: "Что такое поток-демон?", a: "Фоновый поток, завершается при завершении всех обычных потоков." },
+    { q: "Что такое CopyOnWriteArrayList, ConcurrentHashMap?", a: "Потокобезопасные коллекции. CopyOnWriteArrayList — копирует массив при записи, ConcurrentHashMap — разбивает карту на сегменты для быстрого доступа." },
+    { q: "Что такое ExecutorService, какие бывают виды?", a: "Интерфейс для управления пулом потоков. Виды: SingleThread, FixedThreadPool, CachedThreadPool, ScheduledThreadPool." },
+    { q: "Что такое ThreadLocal?", a: "Переменная, уникальная для каждого потока." },
+    { q: "Принцип happens-before?", a: "Гарантирует видимость действий одного потока другим при синхронизации." },
+    { q: "Что такое механизмы CAS и FAA?", a: "CAS — compare and swap, атомарная операция сравнения и замены. FAA — fetch and add, атомарное увеличение значения." },
+    { q: "Что такое Atomic классы?", a: "Атомарные классы — переменные, для которых все операции атомарны, напр. AtomicInteger." },
+    { q: "Что такое JVM, JRE, JDK?", a: "JVM — виртуальная машина Java, JRE — среда выполнения, JDK — комплект разработчика." },
+    { q: "Из каких типов памяти состоит JVM?", a: "Heap, stack, permgen/metaspace, code cache." },
+    { q: "Какие бывают алгоритмы очистки памяти в JVM?", a: "Serial GC, Parallel GC, CMS, G1 GC, ZGC, Shenandoah." },
+    { q: "Что такое metaspace и чем отличается от permgen?", a: "Metaspace — область для метаданных с динамическим размером, permgen — устаревшая фиксированного размера." },
+    { q: "Какие бывают типы GC?", a: "Minor GC, Major/Full GC, Concurrent GC." },
+    { q: "Особенности работы G1GC?", a: "G1 разбивает heap на регионы, прогнозирует паузы, эффективно управляет памятью." },
+    { q: "Что такое GC root?", a: "Объекты, от которых начинается поиск живых объектов: локальные переменные, статические поля, стэк-потоки, JNI-ссылки." },
+    { q: "На какие области делится heap, зачем два survivor?", a: "Eden, Survivor1, Survivor2, Old. Два нужно для перемещения объектов между поколениями." },
+
+    // JDBC
+    { q: "Что такое ACID?", a: "Atomicity, Consistency, Isolation, Durability — свойства транзакций: атомарность, согласованность, изолированность, устойчивость." },
+    { q: "Что такое JDBC?", a: "Стандарт для работы Java с базой данных." },
+    { q: "Этапы работы с БД в JDBC?", a: "Подключение, создание Statement/PreparedStatement, выполнение запроса, обработка результатов, закрытие ресурсов." },
+    { q: "Чем отличается Statement от PreparedStatement?", a: "Statement — статический SQL, PreparedStatement — с параметрами и защищён от SQL-инъекций." },
+    { q: "Чем отличаются query и update?", a: "query — получение данных (SELECT), update — изменения данных (INSERT, UPDATE, DELETE)." },
+    { q: "Как создать Connection?", a: "DriverManager.getConnection(url, user, password)." },
+    { q: "Как правильно закрыть Connection?", a: "В блоке finally или try-with-resources вызвать conn.close()." },
+    { q: "Какие есть уровни изоляции транзакций?", a: "READ_UNCOMMITTED, READ_COMMITTED, REPEATABLE_READ, SERIALIZABLE." },
+    { q: "Типы чтения транзакций?", a: "Грязное, неповторяемое, фантомное чтение." },
+
+    // JPA
+    { q: "Что такое JPA?", a: "Java Persistence API — стандарт для ORM в Java." },
+    { q: "Из чего состоит JPA?", a: "Entity, EntityManager, Query, Repository, аннотации." },
+    { q: "Чем JPA отличается от Hibernate?", a: "JPA — стандарт, Hibernate — его реализация." },
+    { q: "Можно ли использовать JPA с NoSQL?", a: "В основном JPA для реляционных БД, но есть адаптеры под NoSQL." },
+    { q: "Что такое Entity?", a: "Класс, отображаемый на таблицу в БД." },
+    { q: "Основные требования к Entity?", a: "Аннотация @Entity, публичный конструктор без аргументов, уникальный id." },
+    { q: "Типы связей между Entity?", a: "OneToOne, OneToMany, ManyToOne, ManyToMany." },
+    { q: "Типы Fetch стратегий в JPA?", a: "EAGER — сразу, LAZY — по требованию." },
+    { q: "Что такое EntityManager?", a: "Интерфейс для управления сущностями и транзакциями." },
+    { q: "4 жизненных цикла Entity?", a: "New, Managed, Detached, Removed." },
+    { q: "Виды кэша в JPA?", a: "Первый (EntityManager), второй (на уровне приложения)." },
+
+    // Hibernate
+    { q: "Что такое Hibernate?", a: "ORM-фреймворк для Java для работы с БД через объекты." },
+    { q: "Что такое ORM?", a: "Object-Relational Mapping — отображение объектов на таблицы БД." },
+    { q: "Преимущества Hibernate?", a: "Не нужно писать SQL, автоматическое отображение, кэширование, поддержка транзакций." },
+    { q: "Какие преимущества Hibernate над JDBC?", a: "Меньше SQL, меньше кода, поддержка кэша, автоматизация транзакций." },
+    { q: "Что такое конфигурационный файл Hibernate?", a: "Файл hibernate.cfg.xml с настройками подключения и Hibernate." },
+    { q: "Что такое mapping file в Hibernate?", a: "XML или аннотации для соответствия классов и таблиц." },
+    { q: "Что такое Transient object?", a: "Объект не хранится в БД и не отслеживается Hibernate." },
+    { q: "Persistent object?", a: "Объект синхронизирован с базой, управляется Hibernate." },
+    { q: "Что такое TransactionFactory?", a: "Создаёт и управляет транзакциями в Hibernate." },
+    { q: "Что такое ConnectionProvider?", a: "Абстракция для работы с соединениями БД." },
+    { q: "Что такое транзакция?", a: "Набор операций с данными, который выполняется как одно целое." },
+    { q: "Стратегии загрузки объектов в Hibernate?", a: "EAGER (жадная), LAZY (ленивая)." },
+    { q: "Важные аннотации Hibernate?", a: "@Entity, @Table, @Id, @GeneratedValue, @OneToMany, @ManyToOne, @ManyToMany, @Column." },
+    { q: "Виды кэша в Hibernate?", a: "Первого уровня (Session), второго уровня (на уровне приложения)." },
+    { q: "Типы кэша в Hibernate?", a: "Репликация, транзакционный, чтение/запись, только для чтения." },
+    { q: "Состояния Entity в Hibernate?", a: "Transient, Persistent, Detached." },
+    { q: "Что такое HQL?", a: "Hibernate Query Language — объектный язык запросов, похожий на SQL." },
+
+    // SQL
+    { q: "Что такое база данных?", a: "Организованное и структурированное хранилище данных." },
+    { q: "Модель данных в реляционных СУБД?", a: "Табличная: строки — записи, столбцы — поля." },
+    { q: "Что такое нормализация?", a: "Процесс оптимизации структуры таблиц для уменьшения дублирования данных." },
+    { q: "Типы связей в БД, примеры?", a: "Один-к-одному, один-ко-многим, многие-ко-многим (пример: студент и группа)." },
+    { q: "primary key — что это?", a: "Уникальный идентификатор строки в таблице." },
+    { q: "foreign key — что это?", a: "Ссылка на primary key в другой таблице для организации связей." },
+    { q: "Что такое индексы в БД и для чего?", a: "Для ускорения поиска, бывают кластерные, некластерные, уникальные." },
+    { q: "Типы индекса?", a: "Кластерный, некластерный, уникальный, полнотекстовый." },
+    { q: "Что такое SQL?", a: "Язык структурированных запросов для работы с БД." },
+    { q: "Типы JOIN в SQL?", a: "INNER, LEFT, RIGHT, FULL, CROSS." },
+    { q: "LEFT JOIN, RIGHT JOIN — в чем отличие?", a: "LEFT JOIN — все строки из левой таблицы, RIGHT JOIN — из правой, даже если нет совпадений." },
+    { q: "Для чего используется HAVING?", a: "Для фильтрации результатов после группировки (GROUP BY)." },
+    { q: "DDL, DML, TCL, DCL — что это?", a: "Категории SQL-команд: DDL — структура, DML — данные, TCL — транзакции, DCL — права." },
+    { q: "Общий синтаксис SELECT?", a: "SELECT [DISTINCT] поля FROM таблица WHERE ... GROUP BY ... HAVING ... ORDER BY ..." },
+    { q: "Что такое NULL в SQL?", a: "Спец. значение для отсутствия данных." },
+    { q: "Чем отличаются DISTINCT и GROUP BY?", a: "DISTINCT — убрать дубли, GROUP BY — сгруппировать строки." },
+    { q: "Что делают UNION, INTERSECT, EXCEPT?", a: "Операции над множествами (объединение, пересечение, разность)." },
+    { q: "Что лучше: соединение или подзапросы?", a: "JOIN быстрее и эффективнее, подзапросы — при сложной логике." },
+    { q: "Что делает функция EXISTS?", a: "Проверяет, существует ли результат подзапроса." },
+    { q: "Для чего используется оператор PIVOT?", a: "Для преобразования строк в столбцы (ротация таблицы)." },
+    { q: "Что такое хранимая процедура?", a: "SQL-код, сохраняемый и выполняемый на сервере СУБД." },
+    { q: "Основные свойства транзакции?", a: "ACID: атомарность, согласованность, изоляция, долговечность." },
+    { q: "Определение третьей нормальной формы БД?", a: "Нет транзитивной зависимости неключевых атрибутов от ключа." },
+    { q: "Что такое денормализация БД?", a: "Специальное нарушение нормализации для ускорения запросов." },
+    { q: "Что такое целостность данных и ограничения?", a: "Система правил для поддержания корректности данных (Primary Key, Unique, Foreign Key и др.)." },
+    { q: "Чем отличаются кластерные и некластерные индексы?", a: "Кластерный индекс определяет порядок хранения строк, некластерный — отдельная структура." },
+    { q: "В чем разница между ограничениями primary и unique?", a: "Primary — уникальный + NOT NULL, unique — просто уникальность, можно несколько unique." },
+
+    // NoSQL
+    { q: "Что такое NoSQL?", a: "СУБД, не использующие строго реляционную модель данных." },
+    { q: "Какие есть типы хранилищ данных в NoSQL?", a: "Документные, ключ-значение, графовые, колоночные." },
+    { q: "Что такое MongoDB?", a: "Документная NoSQL БД, хранит данные в формате BSON/JSON." },
+    { q: "Преимущества MongoDB?", a: "Гибкая структура, масштабируемость, высокая производительность." },
+    { q: "Недостатки MongoDB?", a: "Нет транзакций на уровне SQL, слабее консистентность, ограничена сложность запросов." },
+
+    // REST
+    { q: "Что такое REST?", a: "Стиль архитектуры для построения Web-сервисов, использует HTTP протокол." },
+    { q: "На чем основан REST API?", a: "На действиях с ресурсами через HTTP-методы: GET, POST, PUT, DELETE." },
+
+    // Spring Core
+    { q: "Что такое IoC и Dependency Injection?", a: "IoC — инверсия управления, DI — внедрение зависимостей, контейнер сам управляет созданием объектов." },
+    { q: "Какие бывают скоупы бинов и какой дефолтный?", a: "Singleton (по умолчанию), Prototype, Session, Request и др." },
+    { q: "Какие существуют типы автоматического связывания?", a: "По типу, по имени, по конструктору." },
+    { q: "Часто используемые аннотации, разница @Autowired/@Qualifier?", a: "@Component, @Service, @Repository, @Controller, @Autowired, @Qualifier — уточняет выбор при автосвязывании." },
+    { q: "Для чего нужен component scan?", a: "Автоматический поиск и регистрация бинов в заданных пакетах." },
+    { q: "Как добавить component scan в Spring Boot?", a: "Через @SpringBootApplication или @ComponentScan(basePackages = ...)." },
+    { q: "Разница между @Component и @ComponentScan?", a: "@Component — объявляет бин, @ComponentScan — где их искать." },
+    { q: "Для чего используется аннотация @Bean?", a: "Создание бина через метод в конфигурационном классе." },
+    { q: "Разница @Bean и @Component?", a: "@Component — автоматически, @Bean — явно создаётся разработчиком." },
+    { q: "Разница @Component, @Service, @Repository?", a: "Семантика: @Service — бизнес-логика, @Repository — БД, @Component — любой бин." },
+    { q: "Можно ли использовать @Component вместо @Service для бизнес-логики?", a: "Да, но @Service лучше для читаемости и семантики." },
+    { q: "Как инжектить нужный бин при нескольких бинах? @Primary/, @Qualifier?", a: "@Primary помечает бин как предпочтительный, @Qualifier — по имени." },
+    { q: "Как выбрать бин через application.properties?", a: "Через @Value или @ConfigurationProperties можно выбрать нужную реализацию." },
+    { q: "В чем разница @Controller и @RestController?", a: "@RestController возвращает JSON, @Controller — использует ViewResolver." },
+    { q: "Проблема n+1 и её решение?", a: "Избыточные запросы при LAZY-стратегии. Решить: подключить fetch join или EntityGraph." },
+    { q: "Жизненный цикл bean?", a: "Создание, инициализация (@PostConstruct), работа, уничтожение (@PreDestroy)." },
+    { q: "Зачем нужна @Transactional?", a: "Для управления транзакциями в сервисах Spring — автоматический commit/rollback." }
+  ];
+
+  // Перемешиваем вопросы!
+  qa.sort(() => Math.random() - 0.5);
+
+  let i = 0, score = 0, total = qa.length;
+  showQ();
+
+  function showQ() {
+    document.getElementById('q').textContent = qa[i].q;
+    document.getElementById('questNum').textContent = `Вопрос ${i+1} из ${total}`;
+    document.getElementById('feedback').textContent = "";
+    document.getElementById('a').value = "";
+    document.getElementById('a').disabled = false;
+    document.getElementById('a').focus();
+    progressBar(i, total);
+    document.getElementById('nextBtn').style.display = "none";
+    document.getElementById('score').textContent = "";
+  }
+
+  function check() {
+    let user = document.getElementById('a').value.trim().toLowerCase();
+    let right = qa[i].a.trim().toLowerCase();
+    let correct = user && right && (right.indexOf(user) !== -1 || user.indexOf(right) !== -1 || similarity(right, user) > 0.6);
+    let feedback = document.getElementById('feedback');
+    if (correct) {
+      feedback.innerHTML = "<span style='color:#1fa700'>✔ Всё верно!</span>";
+      score++;
+    } else {
+      feedback.innerHTML = `<span style='color:#ff891f;'>✖ Не совсем так.</span><br><b>Правильный ответ:</b><br>${qa[i].a}`;
+    }
+    document.getElementById('a').disabled = true;
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    document.getElementById('score').textContent = `Правильных ответов: ${score} из ${i+1}`;
+  }
+
+  function next() {
+    i++;
+    if (i < total) {
+      showQ();
+    } else {
+      document.getElementById('q').textContent = "Вы прошли все вопросы!";
+      document.getElementById('a').style.display = 'none';
+      document.querySelector('button[onclick="check()"]').style.display = 'none';
+      document.getElementById('nextBtn').style.display = 'none';
+      document.getElementById('score').textContent = `Итог: ${score} из ${total}`;
+      progressBar(total, total);
+      document.getElementById('feedback').textContent = "";
+    }
+  }
+
+  function similarity(s1, s2) {
+    s1 = s1.split(/\s+/).filter(Boolean);
+    s2 = s2.split(/\s+/).filter(Boolean);
+    let match = s1.filter(w => s2.includes(w)).length;
+    return match / Math.max(s1.length, s2.length);
+  }
+
+  function progressBar(cur, total){
+    let pc = Math.round((cur)/total*100);
+    document.getElementById('barf').style.width = `${pc}%`;
+  }
+
+  document.getElementById('a').addEventListener('keydown', e => {
+    if(e.key==="Enter") check();
+  });
+</script>
